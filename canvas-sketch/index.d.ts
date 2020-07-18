@@ -19,29 +19,30 @@ interface canvasSketch {
 }
 
 declare namespace canvasSketch {
+  type Sketch =
+    | ((props: CanvasSketchProps) => RenderResult)
+    | {
+        begin?: (props: CanvasSketchProps) => void;
+        beginRecord?: (props: CanvasSketchProps) => void;
+        end?: (props: CanvasSketchProps) => void;
+        endRecord?: (props: CanvasSketchProps) => void;
+        preExport?: () => void;
+        postExport?: () => void;
+        render?: (props: CanvasSketchProps) => RenderResult;
+        resize?: (props: CanvasSketchProps) => void;
+        tick?: (props: CanvasSketchProps) => void;
+        unload?: (props: CanvasSketchProps) => void;
+      };
 
-  type Sketch = ((props: CanvasSketchProps) => RenderResult) | {
-    begin?: (props: CanvasSketchProps) => void;
-    beginRecord?: (props: CanvasSketchProps) => void;
-    end?: (props: CanvasSketchProps) => void;
-    endRecord?: (props: CanvasSketchProps) => void;
-    preExport?: () => void;
-    postExport?: () => void;
-    render?: (props: CanvasSketchProps) => RenderResult;
-    resize?: (props: CanvasSketchProps) => void;
-    tick?: (props: CanvasSketchProps) => void;
-    unload?: (props: CanvasSketchProps) => void;
-  }
-  
   type CreateSketch = (props: CanvasSketchProps) => Sketch;
-  
+
   interface CanvasSketchSettings {
     animate?: boolean;
     attributes?: {
       width?: number;
       height?: number;
       alpha?: boolean;
-      depth?:boolean;
+      depth?: boolean;
       stencil?: boolean;
       antialias?: boolean;
       premultipliedAlpha?: boolean;
@@ -52,7 +53,7 @@ declare namespace canvasSketch {
     canvas?: HTMLCanvasElement;
     context?: "2d" | "webgl";
     data?: any;
-    dimensions?: [number, number];
+    dimensions?: string | [number, number];
     duration?: number;
     encoding?: string;
     encodingQuality?: number;
@@ -87,7 +88,7 @@ declare namespace canvasSketch {
     totalFrames?: number;
     units?: UnitType;
   }
-  
+
   interface TimeProps {
     playhead: number;
     time: number;
@@ -97,7 +98,7 @@ declare namespace canvasSketch {
     fps: number;
     timeScale: number;
   }
-  
+
   interface SizeProps {
     width: number;
     height: number;
@@ -107,7 +108,7 @@ declare namespace canvasSketch {
     viewportWidth: number;
     viewportHeight: number;
   }
-  
+
   interface CanvasSketchProps {
     playhead: number;
     time: number;
@@ -126,11 +127,11 @@ declare namespace canvasSketch {
     recording: boolean;
     settings: CanvasSketchSettings;
     data: any;
-    bleed: number,
-    pixelRatio: number,
-    width: number,
-    height: number,
-    dimensions: [ number, number ],
+    bleed: number;
+    pixelRatio: number;
+    width: number;
+    height: number;
+    dimensions: [number, number];
     units: UnitType;
     scaleX: number;
     scaleY: number;
@@ -155,16 +156,16 @@ declare namespace canvasSketch {
     pause: () => void;
     stop: () => void;
   }
-  
+
   type CanvasSketchCallback = (props: CanvasSketchProps) => void;
-  
+
   interface ExportFrameOpt {
     commit?: boolean;
     sequence?: boolean;
     save?: boolean;
     timeStamp?: string;
   }
-  
+
   interface ExportOptions {
     sequence?: boolean;
     save?: boolean;
@@ -179,11 +180,11 @@ declare namespace canvasSketch {
     timeStamp: string;
     totalFrames: number;
   }
-  
+
   interface DoExportFrameOpts extends Partial<ExportOptions> {
     hash?: string;
   }
-  
+
   type FrameExport = {
     sequence?: boolean;
     fps?: number;
@@ -201,18 +202,27 @@ declare namespace canvasSketch {
     layer: number;
     totalLayers: number;
   } & SaveResult;
-  
-  type SaveResult = { save: false; } | ({
-    save: true;
-    filename: string;
-    client: boolean;
-  } & ({} | {
-    stream: boolean;
-    outputName: string;
-  }))
-  
-  type RenderResult = Array<{ data?: HTMLCanvasElement | object, dataURL?: string } | HTMLCanvasElement | undefined> | void;
-  
+
+  type SaveResult =
+    | { save: false }
+    | ({
+        save: true;
+        filename: string;
+        client: boolean;
+      } & (
+        | {}
+        | {
+            stream: boolean;
+            outputName: string;
+          }
+      ));
+
+  type RenderResult = Array<
+    | { data?: HTMLCanvasElement | object; dataURL?: string }
+    | HTMLCanvasElement
+    | undefined
+  > | void;
+
   type PaperSizes = Record<string, PaperSize | undefined>;
 }
 
@@ -224,7 +234,6 @@ interface PaperSize {
 type UnitType = "mm" | "cm" | "m" | "pc" | "pt" | "in" | "ft" | "px";
 
 declare class SketchManager {
-
   constructor();
 
   _settings: canvasSketch.CanvasSketchSettings;
@@ -251,14 +260,19 @@ declare class SketchManager {
   _resizeHandler: () => void;
 
   get sketch(): canvasSketch.Sketch | undefined;
-  
+
   get settings(): canvasSketch.CanvasSketchSettings;
-  
+
   get props(): {} | canvasSketch.CanvasSketchProps;
 
   _computePlayhead(time: number, duration: number): number;
 
-  _computeFrame(playhead: number, time: number, totalFrames: number, fps: number): number;
+  _computeFrame(
+    playhead: number,
+    time: number,
+    totalFrames: number,
+    fps: number
+  ): number;
 
   _computeCurrentFrame(): number;
 
@@ -284,11 +298,17 @@ declare class SketchManager {
 
   endRecord(): Promise<void>;
 
-  _createExportOptions(opt?: canvasSketch.ExportFrameOpt): canvasSketch.ExportOptions;
+  _createExportOptions(
+    opt?: canvasSketch.ExportFrameOpt
+  ): canvasSketch.ExportOptions;
 
-  exportFrame(opt?: canvasSketch.ExportFrameOpt): Promise<canvasSketch.FrameExport | canvasSketch.FrameExport[]>;
+  exportFrame(
+    opt?: canvasSketch.ExportFrameOpt
+  ): Promise<canvasSketch.FrameExport | canvasSketch.FrameExport[]>;
 
-  _doExportFrame(exportOpts?: canvasSketch.DoExportFrameOpts): Promise<canvasSketch.FrameExport[]>;
+  _doExportFrame(
+    exportOpts?: canvasSketch.DoExportFrameOpts
+  ): Promise<canvasSketch.FrameExport[]>;
 
   _wrapContextScale(cb: canvasSketch.CanvasSketchCallback): void;
 
@@ -302,7 +322,9 @@ declare class SketchManager {
 
   submitDrawCall(): canvasSketch.RenderResult;
 
-  update(opt?: canvasSketch.CanvasSketchSettings): canvasSketch.CanvasSketchProps;
+  update(
+    opt?: canvasSketch.CanvasSketchSettings
+  ): canvasSketch.CanvasSketchProps;
 
   resize(): boolean;
 
@@ -320,16 +342,23 @@ declare class SketchManager {
 
   _setupGLKey(): void;
 
-  getTimeProps(settings?: canvasSketch.CanvasSketchSettings): canvasSketch.TimeProps;
+  getTimeProps(
+    settings?: canvasSketch.CanvasSketchSettings
+  ): canvasSketch.TimeProps;
 
   setup(settings?: canvasSketch.CanvasSketchSettings): void;
 
-  loadAndRun(canvasSketch: canvasSketch.CreateSketch, newSettings?: canvasSketch.CanvasSketchSettings): Promise<this>;
+  loadAndRun(
+    canvasSketch: canvasSketch.CreateSketch,
+    newSettings?: canvasSketch.CanvasSketchSettings
+  ): Promise<this>;
 
   unload(): void;
 
   destroy(): void;
 
-  load(createSketch: canvasSketch.CreateSketch, newSettings?: canvasSketch.CanvasSketchSettings): Promise<this>;
+  load(
+    createSketch: canvasSketch.CreateSketch,
+    newSettings?: canvasSketch.CanvasSketchSettings
+  ): Promise<this>;
 }
-
