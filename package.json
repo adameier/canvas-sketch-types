@@ -1,0 +1,14 @@
+{
+  "name": "canvas-sketch-types",
+  "version": "1.0.0",
+  "description": "TypeScript declaration files for canvas-sketch",
+  "main": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Meier",
+  "license": "MIT",
+  "dependencies": {
+    "@types/p5": "^0.9.1"
+  }
+}
