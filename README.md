@@ -6,8 +6,8 @@ To use, `npm install canvas-sketch-types` and add the following to your tsconfig
 {
   "compilerOptions": {
     "paths": {
-      "canvas-sketch": ["types/canvas-sketch"],
-      "canvas-sketch/*": ["types/canvas-sketch/*"]
+      "canvas-sketch": ["node_modules/canvas-sketch-types"],
+      "canvas-sketch/*": ["node_modules/canvas-sketch-types/*"]
     }
   }
 ```
