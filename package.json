@@ -2,6 +2,7 @@
   "name": "canvas-sketch-types",
   "version": "1.1.2",
   "description": "TypeScript declaration files for canvas-sketch",
+  "homepage": "https://github.com/adameier/canvas-sketch-types",
   "main": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
